@@ -30,11 +30,37 @@ Weeks 7, 8 and 9 are the core of the class. We have a question. We have some dat
 
 * `att_chg` as a function of `gender`
 
+```{r}
+stan_glm(data = week_8,
+          att_chg ~ gender - 1,
+          family = gaussian,
+          refresh = 0)
+```
+
+
 
 * `att_chg` as a function of `liberal`
+```{r}
+
+stan_glm(data = week_8,
+          att_chg ~ party - 1,
+          family = gaussian,
+          refresh = 0)
+
+```
+
 
 
 * `att_chg` as a function of `treatment`
+
+```{r}
+fitted <- stan_glm(data = week_8,
+          att_chg ~ treatment - 1,
+          family = gaussian,
+          refresh = 0)
+
+fitted
+```
 
 
 
@@ -43,13 +69,40 @@ Weeks 7, 8 and 9 are the core of the class. We have a question. We have some dat
 ## Scene 2
 
 **Prompt:** For the model with `att_chg` as a function of `treatment`, create posterior probability densities for the two important parameters. Write a paragraph interpreting the meaning of those posteriors. 
+```{r}
+fitted %>%
+  as_tibble() %>%
+  ggplot(aes(x = treatmentTreated)) +
+  geom_density(fill = "dodgerblue") +
+  geom_density(aes(x = treatmentControl), fill = "red")
 
+# when there is treatment imposed in our experiment, there is an increase
+# in the probability of a change in attitude.
+  
+```
 
 
 
 ## Scene 3
 
 **Prompt:** Create a plot of the the posterior for the average treatment effect. Write a paragraph interpreting the plot.
+
+```{r}
+fitted %>% 
+  as_tibble() %>% 
+  mutate(ate = treatmentTreated - treatmentControl) %>% 
+  ggplot(aes(x = ate)) +
+    geom_histogram(aes(y = after_stat(count/sum(count))),
+                   bins = 100) +
+  labs(title = "Average Treatment Effect Posterior Distribution",
+       x = "Average Treatment Effect",
+       y = "Probability")
+
+# ATE represents the average change in attitude for the treatment group minus 
+# the average change in attitude for the control group. This posterior distribution
+# represents the probability of receiving different average treatment effects 
+# 
+```
 
 
 
